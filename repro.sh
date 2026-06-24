@@ -110,6 +110,7 @@ done
 
 echo "## -- Results:"
 if [ ${#ISSUE_VERSIONS[@]} -gt 0 ]; then
+    echo "## -- ISSUES WITH :"
     for issue in "${ISSUE_VERSIONS[@]}"; do
         echo "## --   >> $issue"
     done
