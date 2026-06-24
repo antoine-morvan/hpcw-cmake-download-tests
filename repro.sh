@@ -70,7 +70,7 @@ log_dir="${REPRO_SETUP_SCRIPT_DIR}/logs_$(date -u --iso=seconds)"
 source "${REPRO_SETUP_SCRIPT_DIR}/spack/share/spack/setup-env.sh"
 
 # Install all necessary cmake versions & HPCW dependencies
-for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
+for CMAKE_VERSION in "${CMAKE_VERSION_LIST[@]}"; do
     echo "## -- spack install cmake@${CMAKE_VERSION}"
     spack install -j 8 cmake@${CMAKE_VERSION}
 done
@@ -80,7 +80,7 @@ mkdir -p "${log_dir}"
 # Test download
 ISSUE_VERSIONS=()
 for HPCW_LOG_ENABLE in ON; do
-    for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
+    for CMAKE_VERSION in "${CMAKE_VERSION_LIST[@]}"; do
         (
             echo "## -- test cmake@${CMAKE_VERSION} log enable = ${HPCW_LOG_ENABLE}"
             spack load cmake@${CMAKE_VERSION}
