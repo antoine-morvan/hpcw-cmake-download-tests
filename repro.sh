@@ -83,7 +83,7 @@ mkdir -p "${log_dir}"
 
 # Test download
 ISSUE_VERSIONS=()
-for HPCW_LOG_ENABLE in ON; do
+for HPCW_LOG_ENABLE in ON OFF; do
     for CMAKE_VERSION in "${CMAKE_VERSION_LIST[@]}"; do
         (
             echo "## -- test cmake@${CMAKE_VERSION} log enable = ${HPCW_LOG_ENABLE}"
