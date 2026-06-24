@@ -71,26 +71,47 @@ source "${REPRO_SETUP_SCRIPT_DIR}/spack/share/spack/setup-env.sh"
 
 # Install all necessary cmake versions & HPCW dependencies
 for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
-    echo "spack install cmake@${CMAKE_VERSION}"
+    echo "## -- spack install cmake@${CMAKE_VERSION}"
     spack install -j 8 cmake@${CMAKE_VERSION}
 done
 
 mkdir -p "${log_dir}"
 
 # Test download
+ISSUE_VERSIONS=()
 for HPCW_LOG_ENABLE in ON; do
     for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
         (
-            echo "test cmake@${CMAKE_VERSION} log enable = ${HPCW_LOG_ENABLE}"
+            echo "## -- test cmake@${CMAKE_VERSION} log enable = ${HPCW_LOG_ENABLE}"
             spack load cmake@${CMAKE_VERSION}
             cmake --version
 
             cd "${REPRO_SETUP_SCRIPT_DIR}/hpcw"
             git clean -xdff
             cd downloads
-            cmake .
+            cmake . -DENABLE_LOGGING=${HPCW_LOG_ENABLE}
             make
-            ls -a "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store"/*
+
+            echo "## -- ls"
+            ls -ailh "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store"/*
+            echo "## -- find"
+            find "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store" -name "*.tmp*" -o -regex "\.[a-zA-Z0-9].*"
         ) |& tee "${log_dir}"/LOG_${HPCW_LOG_ENABLE}-CMAKE_${CMAKE_VERSION}.log
+        TMP_FILECOUNT=$(find "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store" -name "*.tmp*" -o -regex "\.[a-zA-Z0-9].*")
+        if [ "${TMP_FILECOUNT}" -gt 0 ]; then
+            ISSUE_VERSIONS+=("CMake@${CMAKE_VERSION} / Logging ${HPCW_LOG_ENABLE}")
+        fi
     done
 done
+
+echo "## -- Results:"
+if [ ${#ISSUE_VERSIONS[@]} -gt 0 ]; then
+    for issue in "${ISSUE_VERSIONS[@]}"; do
+        echo "## --   >> $issue"
+    done
+else
+    echo "## -- NO ISSUE"
+fi
+
+echo "## -- Done."
+exit 0
