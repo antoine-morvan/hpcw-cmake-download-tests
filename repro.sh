@@ -62,6 +62,8 @@ CMAKE_VERSION_LIST+=("4.3.3")
 ###############################################################################
 REPRO_SETUP_SCRIPT_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 
+log_dir="${REPRO_SETUP_SCRIPT_DIR}/logs_$(date -u --iso=seconds)"
+
 [ ! -d "${REPRO_SETUP_SCRIPT_DIR}/spack" ] && git clone --depth=2 https://github.com/spack/spack.git "${REPRO_SETUP_SCRIPT_DIR}/spack"
 [ ! -d "${REPRO_SETUP_SCRIPT_DIR}/hpcw" ] && git clone https://gitlab.dkrz.de/hpcw/hpcw.git "${REPRO_SETUP_SCRIPT_DIR}/hpcw"
 
@@ -72,5 +74,14 @@ for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
     spack install -j 8 cmake@${CMAKE_VERSION}
 done
 
-# Test download
+mkdir -p "${log_dir}"
 
+# Test download
+for HPCW_LOG_ENABLE in ON; do
+    for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
+        (
+            spack load cmake@${CMAKE_VERSION}
+            cmake --version
+        ) |& tee "${log_dir}"/LOG_${HPCW_LOG_ENABLE}-CMAKE_${CMAKE_VERSION}.log
+    done
+done
