@@ -97,7 +97,7 @@ for HPCW_LOG_ENABLE in ON; do
             echo "## -- find"
             find "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store" -name "*.tmp*" -o -regex "\.[a-zA-Z0-9].*"
         ) |& tee "${log_dir}"/LOG_${HPCW_LOG_ENABLE}-CMAKE_${CMAKE_VERSION}.log
-        TMP_FILECOUNT=$(find "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store" -name "*.tmp*" -o -regex "\.[a-zA-Z0-9].*")
+        TMP_FILECOUNT=$(find "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store" -name "*.tmp*" -o -regex "\.[a-zA-Z0-9].*" | wc -l)
         if [ "${TMP_FILECOUNT}" -gt 0 ]; then
             ISSUE_VERSIONS+=("CMake@${CMAKE_VERSION} / Logging ${HPCW_LOG_ENABLE}")
         fi
