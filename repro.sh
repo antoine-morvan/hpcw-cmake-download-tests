@@ -71,6 +71,7 @@ source "${REPRO_SETUP_SCRIPT_DIR}/spack/share/spack/setup-env.sh"
 
 # Install all necessary cmake versions & HPCW dependencies
 for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
+    echo "spack install cmake@${CMAKE_VERSION}"
     spack install -j 8 cmake@${CMAKE_VERSION}
 done
 
@@ -80,8 +81,16 @@ mkdir -p "${log_dir}"
 for HPCW_LOG_ENABLE in ON; do
     for CMAKE_VERSION in "${CMAKE_VERSION_LIST}"; do
         (
+            echo "test cmake@${CMAKE_VERSION} log enable = ${HPCW_LOG_ENABLE}"
             spack load cmake@${CMAKE_VERSION}
             cmake --version
+
+            cd "${REPRO_SETUP_SCRIPT_DIR}/hpcw"
+            git clean -xdff
+            cd downloads
+            cmake .
+            make
+            ls -a "${REPRO_SETUP_SCRIPT_DIR}/hpcw/hpcw-store"/*
         ) |& tee "${log_dir}"/LOG_${HPCW_LOG_ENABLE}-CMAKE_${CMAKE_VERSION}.log
     done
 done
